@@ -8,9 +8,12 @@ app = Flask(__name__)
 def get_request():
     return render_template('input.html')
 
+@app.route("/hello")
+def get_request2():
+    return 'hello'
 
-@app.route("/api/v1/ssh/add", methods=['POST'])
-def add():
+@app.route("/api/v1/ssh/create", methods=['POST'])
+def create():
     project_id = request.form['project_id']
     floating_ip = request.form['floating_ip']
     port = request.form['port']
