@@ -17,6 +17,11 @@ def create():
     project_id = request.form['project_id']
     floating_ip = request.form['floating_ip']
     port = request.form['port']
+    if os.path.exists(f"/etc/nginx/servers-available/{project_id}.conf"):
+        with open(f"/etc/nginx/servers-available/{project_id}.conf", "r") as file:
+            if file.read().find(port+';') != -1:
+                # 중복되는 port 사용
+                return "fail", 400
     content = (
         "server {\n"
         f"       listen      {port};\n"
@@ -26,10 +31,36 @@ def create():
     print(content)
     with open(f"/etc/nginx/servers-available/{project_id}.conf", "a") as file:
         file.write(content)
-    
     os.system('sudo systemctl restart nginx')
+    return "success", 200
 
-    return "append complete"
+@app.route("/api/v1/ssh/delete", methods=['POST'])
+def delete():
+    project_id = request.form['project_id']
+    floating_ip = request.form['floating_ip']
+    port = ''
+    data = []
+    with open(f"/etc/nginx/servers-available/{project_id}.conf", "r") as file:
+        block = [file.readline()]
+        while(block[0] != ''):
+            block += [file.readline()]
+            block += [file.readline()]
+            block += [file.readline()]
+            if block[2].find(floating_ip+':') == -1:
+                data += block
+            else:
+                port = block[1].split()[1][:block[1].split()[1].find(';')]
+            block = [file.readline()]
+
+    if port == '':
+        return "fail", 400
+
+    with open(f"/etc/nginx/servers-available/{project_id}.conf", "w") as file:
+        for line in data:
+            file.write(line)
+            
+    os.system('sudo systemctl restart nginx')
+    return port, 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0',port=5000)
