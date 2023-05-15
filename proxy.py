@@ -14,30 +14,38 @@ def get_request2():
 
 @app.route("/api/v1/ssh/create", methods=['POST'])
 def create():
-    project_id = request.form['project_id']
-    floating_ip = request.form['floating_ip']
-    port = request.form['port']
-    if os.path.exists(f"/etc/nginx/servers-available/{project_id}.conf"):
-        with open(f"/etc/nginx/servers-available/{project_id}.conf", "r") as file:
-            if file.read().find(port+';') != -1:
-                # 중복되는 port 사용
-                return "fail", 400
+    
+    params = request.get_json()
+    project_id = params['project_id']
+    floating_ip = params['floating_ip']
+    port = params['port']
+    
+    dir_path = "/etc/nginx/servers-available"
+    for path in os.listdir(dir_path):
+        if os.path.isfile(os.path.join(dir_path, path)):
+            with open(f"/etc/nginx/servers-available/{path}", "r") as file:
+                if file.read().find(port+';') != -1:
+                    # 중복되는 port 사용
+                    return "fail", 400
+    
     content = (
         "server {\n"
         f"       listen      {port};\n"
         f"       proxy_pass  {floating_ip}:22;\n"
         "}\n"
     )
-    print(content)
     with open(f"/etc/nginx/servers-available/{project_id}.conf", "a") as file:
         file.write(content)
-    os.system('sudo systemctl restart nginx')
+    os.system('sudo systemctl reload nginx')
     return "success", 200
 
 @app.route("/api/v1/ssh/delete", methods=['POST'])
 def delete():
-    project_id = request.form['project_id']
-    floating_ip = request.form['floating_ip']
+
+    params = request.get_json()
+    project_id = params['project_id']
+    floating_ip = params['floating_ip']
+
     port = ''
     data = []
     with open(f"/etc/nginx/servers-available/{project_id}.conf", "r") as file:
@@ -59,7 +67,7 @@ def delete():
         for line in data:
             file.write(line)
             
-    os.system('sudo systemctl restart nginx')
+    os.system('sudo systemctl reload nginx')
     return port, 200
 
 if __name__ == '__main__':
