@@ -83,7 +83,7 @@ def domain_create():
     for path in os.listdir(dir_path):
         if os.path.isfile(os.path.join(dir_path, path)):
             with open(f"/etc/nginx/sites-enabled/{path}", "r", encoding='utf-8') as file:
-                if file.read().find(domain + ';') != -1:
+                if file.read().find(' '+domain + ';') != -1:
                     # 중복되는 port 사용
                     return "ERROR: Same domain already exists", 400
 
