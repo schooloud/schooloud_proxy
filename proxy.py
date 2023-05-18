@@ -34,7 +34,7 @@ def create():
         f"       proxy_pass  {floating_ip}:22;\n"
         "}\n"
     )
-    with open(f"/etc/nginx/servers-available/{project_id}.conf", "a") as file:
+    with open(f"/etc/nginx/servers-available/{project_id}.conf", "a", encoding='utf8') as file:
         file.write(content)
     os.system('sudo systemctl reload nginx')
     return "success", 200
@@ -63,7 +63,7 @@ def delete():
     if port == '':
         return "fail", 400
 
-    with open(f"/etc/nginx/servers-available/{project_id}.conf", "w") as file:
+    with open(f"/etc/nginx/servers-available/{project_id}.conf", "w", encoding='utf8') as file:
         for line in data:
             file.write(line)
             
