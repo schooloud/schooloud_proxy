@@ -15,7 +15,7 @@ def get_request2():
 
 
 @app.route("/api/v1/ssh/create", methods=['POST'])
-def create():
+def ssh_create():
     params = request.get_json()
     project_id = params['project_id']
     floating_ip = params['floating_ip']
@@ -42,7 +42,7 @@ def create():
 
 
 @app.route("/api/v1/ssh/delete", methods=['POST'])
-def delete():
+def ssh_delete():
     params = request.get_json()
     project_id = params['project_id']
     floating_ip = params['floating_ip']
