@@ -88,10 +88,10 @@ def domain_create():
                     return "ERROR: Same domain already exists", 400
 
     content = """server {
-    server_name %s;
-    location / {
-        proxy_pass http://%s;
-    }
+        server_name %s;
+        location / {
+            proxy_pass http://%s;
+        }
 }
 """ % (domain, floating_ip)
 
