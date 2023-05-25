@@ -24,7 +24,7 @@ def ssh_create():
     dir_path = "/etc/nginx/servers-available"
     for path in os.listdir(dir_path):
         if os.path.isfile(os.path.join(dir_path, path)):
-            with open(f"/etc/nginx/servers-available/{path}", "r", encoding='utf-8') as file:
+            with open(f"/etc/nginx/servers-available/{path}", "r", encoding='utf-8', errors='ignore') as file:
                 if file.read().find(port + ';') != -1:
                     # 중복되는 port 사용
                     return "ERROR: Same port already exists", 400
@@ -35,7 +35,7 @@ def ssh_create():
         f"       proxy_pass  {floating_ip}:22;\n"
         "}\n"
     )
-    with open(f"/etc/nginx/servers-available/{project_id}.conf", "a", encoding='utf-8') as file:
+    with open(f"/etc/nginx/servers-available/{project_id}.conf", "a", encoding='utf-8', errors='ignore') as file:
         file.write(content)
     os.system('sudo systemctl reload nginx')
     return "success", 200
@@ -49,7 +49,7 @@ def ssh_delete():
 
     port = ''
     data = []
-    with open(f"/etc/nginx/servers-available/{project_id}.conf", "r", encoding='utf-8') as file:
+    with open(f"/etc/nginx/servers-available/{project_id}.conf", "r", encoding='utf-8', errors='ignore') as file:
         block = [file.readline()]
         while (block[0] != ''):
             block += [file.readline()]
@@ -64,7 +64,7 @@ def ssh_delete():
     if port == '':
         return "fail", 400
 
-    with open(f"/etc/nginx/servers-available/{project_id}.conf", "w", encoding='utf-8') as file:
+    with open(f"/etc/nginx/servers-available/{project_id}.conf", "w", encoding='utf-8', errors='ignore') as file:
         for line in data:
             file.write(line)
 
@@ -82,7 +82,7 @@ def domain_create():
     dir_path = "/etc/nginx/sites-enabled"
     for path in os.listdir(dir_path):
         if os.path.isfile(os.path.join(dir_path, path)):
-            with open(f"/etc/nginx/sites-enabled/{path}", "r", encoding='utf-8') as file:
+            with open(f"/etc/nginx/sites-enabled/{path}", "r", encoding='utf-8', errors='ignore') as file:
                 if file.read().find(' '+domain + ';') != -1:
                     # 중복되는 domain 사용
                     return "ERROR: Same domain already exists", 400
@@ -95,7 +95,7 @@ def domain_create():
 }
 """ % (domain, floating_ip)
 
-    with open(f"/etc/nginx/sites-enabled/{project_id}", "a", encoding='utf-8') as file:
+    with open(f"/etc/nginx/sites-enabled/{project_id}", "a", encoding='utf-8', errors='ignore') as file:
         file.write(content)
     os.system('sudo systemctl reload nginx')
     return "success", 200
@@ -108,7 +108,7 @@ def domain_delete():
     domain = params['domain']
 
     data = []
-    with open(f"/etc/nginx/sites-enabled/{project_id}", "r", encoding='utf-8') as file:
+    with open(f"/etc/nginx/sites-enabled/{project_id}", "r", encoding='utf-8', errors='ignore') as file:
         block = [file.readline()]
         while (block[0] != ''):
             block += [file.readline()]
@@ -120,7 +120,7 @@ def domain_delete():
                 data += block
             block = [file.readline()]
 
-    with open(f"/etc/nginx/sites-enabled/{project_id}", "w", encoding='utf-8') as file:
+    with open(f"/etc/nginx/sites-enabled/{project_id}", "w", encoding='utf-8', errors='ignore') as file:
         for line in data:
             file.write(line)
 
